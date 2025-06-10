@@ -1,0 +1,10 @@
+This directory contains a simple xgboost model that trys to learn whether or not the next day of the market will go up or down.
+
+The data is a collection of data of the S&P 500 from fred.stlousifed.org. Along with the S&P 500 data, there are other columns for InterestRateGS10, CAPE, CPI, PPI, UNRATENSA (unemployment), INDPRO. All of these pieces of inforatmion are collected from fred - added to the S&P 500 data in their own columns. This data is also lagged by one month. The date for the data is technically posted on the following month, so the data from those sources is lagged by one month - when it would've been available.
+
+It starts with some data preprocessing via methods from data_processing.py. This creates a `Return` column - `Return` being the percent return from open to close on a given day, and a `Target` column, `Target` is 1 if the market incrased on a given day, else 0. Because we want to predict the following day's market trend (going up or down) we will shift the Target by -1.
+We also add sever percent change over a given day - from 1 to 45 days. We also adding some rolling/window features - calculating the rolling mean and standard deviation, momenmut over a given window, expoential moving average over 10 days, and relative strength index over 10 days.
+
+Now that the data is processed, we then standardize and split into training and testing. Training and testing are split by date, so data after 2022 is testing. As for hyperparameter optimization - we use a a RandomSearchCV to get a range to test around for out GridSearchCV. These are commented out because they take a long time to run. This processes gets us our best hyperparameters.
+
+We then train our model with the best hyperparameters - I have them hardcoded in the current file. After training, we look at the accuracy and feature importance. along with how well the model does accross certain years - training on the prior years and testing on the 'current'. I was also curious if we removed some features, would the model perform better.
